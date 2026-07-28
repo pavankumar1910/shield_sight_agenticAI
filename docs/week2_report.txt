@@ -1,0 +1,89 @@
+
+======================================================================
+WEEK 2 COMPLETION REPORT
+SentinelX - Phishing Detection Project
+======================================================================
+
+PROJECT PROGRESS
+----------------------------------------------------------------------
+✅ Week 1: Dataset understanding - COMPLETE
+✅ Week 2: Model training - COMPLETE
+
+WEEK 2 DELIVERABLES
+----------------------------------------------------------------------
+✅ Jupyter Notebook:        02_week2_model_training.ipynb
+✅ Processed Data:          4 files (X_train, X_test, y_train, y_test)
+✅ Trained Model:           baseline_xgboost.pkl
+✅ Feature Names:           feature_names.pkl
+✅ Confusion Matrix:        confusion_matrix.png
+✅ Feature Importance:      feature_importance.png
+✅ Week 2 Report:           week2_report.txt
+
+MODEL SPECIFICATIONS
+----------------------------------------------------------------------
+Algorithm:                  XGBoost Classifier
+Training Samples:           8,844
+Test Samples:               2,211
+Features:                   30
+Training Time:              ~1-2 minutes
+Model Size:                 0.25 MB
+
+MODEL PERFORMANCE (TEST SET)
+----------------------------------------------------------------------
+Accuracy:                   0.9670 (96.70%)
+Precision:                  0.9669 (96.69%)
+Recall:                     0.9740 (97.40%)
+F1-Score:                   0.9705 (97.05%)
+
+CONFUSION MATRIX
+----------------------------------------------------------------------
+True Negatives:             939
+False Positives:            41
+False Negatives:            32
+True Positives:             1,199
+
+ERROR ANALYSIS
+----------------------------------------------------------------------
+False Positive Rate:        4.18%
+False Negative Rate:        2.60%
+Generalization Gap:         0.46%
+
+TOP 5 MOST IMPORTANT FEATURES
+----------------------------------------------------------------------
+sslfinal_state                 → 0.3462
+url_of_anchor                  → 0.2259
+prefix_suffix                  → 0.0644
+web_traffic                    → 0.0425
+sfh                            → 0.0292
+
+ACHIEVEMENTS
+----------------------------------------------------------------------
+✅ Successfully trained baseline model
+✅ Achieved ~97% accuracy on UCI dataset
+✅ Model generalizes well (low overfitting)
+✅ Feature importance analysis completed
+✅ Model saved and ready for deployment
+
+NEXT STEPS - WEEK 3
+----------------------------------------------------------------------
+→ Transition to PhiUSIIL dataset (235K samples, 56 features)
+→ Retrain model on larger dataset
+→ Compare performance: UCI vs PhiUSIIL
+→ Expect accuracy improvement: 97% → ~94%
+
+VIVA READINESS
+----------------------------------------------------------------------
+Can now explain:
+✅ Why XGBoost? (advantages for phishing detection)
+✅ How we handled class imbalance (scale_pos_weight)
+✅ What accuracy we achieved (~97%)
+✅ Which features are most important (top 5)
+✅ How we validated the model (confusion matrix, metrics)
+
+STATUS
+----------------------------------------------------------------------
+✅ WEEK 2 COMPLETE
+✅ READY FOR WEEK 3
+
+Generated: 2025-12-22 18:41:30
+======================================================================

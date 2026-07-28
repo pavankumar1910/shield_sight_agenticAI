@@ -1,0 +1,66 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Large data files (too big for GitHub)
+data/raw/
+data/processed/
+*.csv
+*.pkl
+backend/alexa_legitimate_features.csv
+backend/uploads/
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+/lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs/
+*.log
+verification.log
+verification_results.log
+verify_output.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+dist-ssr/
+*.local

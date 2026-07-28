@@ -1,0 +1,163 @@
+.shieldsight-tooltip {
+  position: absolute;
+  z-index: 999999;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-width: 200px;
+}
+
+.shieldsight-tooltip .loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+.shieldsight-tooltip .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.shieldsight-tooltip .result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shieldsight-tooltip .result.danger {
+  color: #dc2626;
+}
+
+.shieldsight-tooltip .result.safe {
+  color: #16a34a;
+}
+
+.shieldsight-tooltip .icon {
+  font-size: 24px;
+}
+
+.shieldsight-tooltip .info {
+  display: flex;
+  flex-direction: column;
+}
+
+.shieldsight-tooltip .info strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.shieldsight-tooltip .info span {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Link indicators */
+a.shieldsight-danger {
+  border-bottom: 2px solid #dc2626 !important;
+}
+
+a.shieldsight-safe {
+  border-bottom: 2px solid #16a34a !important;
+}
+
+/* Risk Banner */
+.shieldsight-risk-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #dc2626;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  z-index: 1000000;
+  font-family: inherit;
+  font-weight: bold;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.shieldsight-risk-banner button {
+  background: white;
+  color: #dc2626;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Heuristic highlights */
+.shieldsight-suspicious-link {
+  border-bottom: 2px dashed #f59e0b !important;
+}
+
+/* Form Warning Modal */
+.shieldsight-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.shieldsight-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 400px;
+  text-align: center;
+  color: #1f2937;
+}
+
+.shieldsight-modal h2 {
+  color: #dc2626;
+  margin-top: 0;
+}
+
+.shieldsight-modal p {
+  margin: 20px 0;
+  line-height: 1.5;
+}
+
+.shieldsight-modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.shieldsight-modal-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+}
+
+.shieldsight-modal-btn.cancel {
+  background: #e5e7eb;
+}
+
+.shieldsight-modal-btn.proceed {
+  background: #dc2626;
+  color: white;
+}

@@ -1,0 +1,58 @@
+{
+  "model_info": {
+    "accuracy": 1.0,
+    "test_samples": 47159,
+    "num_features": 50,
+    "base_value": null
+  },
+  "top_features_shap": [
+    {
+      "Feature": "URLSimilarityIndex",
+      "Mean_Abs_SHAP": 0.2961763735900881
+    },
+    {
+      "Feature": "LineOfCode",
+      "Mean_Abs_SHAP": 0.06911094482282604
+    },
+    {
+      "Feature": "IsHTTPS",
+      "Mean_Abs_SHAP": 0.05359940403917445
+    },
+    {
+      "Feature": "NoOfImage",
+      "Mean_Abs_SHAP": 0.007068871210224083
+    },
+    {
+      "Feature": "LargestLineLength",
+      "Mean_Abs_SHAP": 0.004471892592666464
+    }
+  ],
+  "top_features_xgb": [
+    {
+      "Feature": "URLSimilarityIndex",
+      "XGBoost_Importance": 0.0
+    },
+    {
+      "Feature": "LineOfCode",
+      "XGBoost_Importance": 0.0
+    },
+    {
+      "Feature": "IsHTTPS",
+      "XGBoost_Importance": 0.0
+    },
+    {
+      "Feature": "NoOfImage",
+      "XGBoost_Importance": 0.0
+    },
+    {
+      "Feature": "LargestLineLength",
+      "XGBoost_Importance": 0.0
+    }
+  ],
+  "shap_stats": {
+    "mean": 4.0008570151836625e-05,
+    "std": 0.046961313070625704,
+    "min": -0.5700238946612188,
+    "max": 0.2922876519754294
+  }
+}

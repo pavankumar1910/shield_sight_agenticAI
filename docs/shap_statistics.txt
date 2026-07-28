@@ -1,0 +1,60 @@
+
+======================================================================
+SHAP EXPLAINABILITY STATISTICS
+======================================================================
+
+COMPUTATION DETAILS
+----------------------------------------------------------------------
+Test samples analyzed:      47,159
+Features per sample:        50
+Total SHAP values:          25,000
+Memory usage:               0.19 MB
+
+SHAP VALUE STATISTICS
+----------------------------------------------------------------------
+Base value (expected):      N/A
+Mean SHAP value:            0.000040
+Std SHAP value:             0.046961
+Min SHAP value:             -0.570024
+Max SHAP value:             0.292288
+Mean absolute SHAP:         0.010014
+
+TOP 10 FEATURES (SHAP)
+----------------------------------------------------------------------
+Rank  Feature                              Mean |SHAP|
+----------------------------------------------------------------------
+   1  URLSimilarityIndex                   0.29617637
+   2  LineOfCode                           0.06911094
+   3  IsHTTPS                              0.05359940
+   4  NoOfImage                            0.00706887
+   5  LargestLineLength                    0.00447189
+   6  NoOfExternalRef                      0.00289883
+   7  DomainTitleMatchScore                0.00266539
+   8  NoOfJS                               0.00259515
+   9  NoOfSelfRef                          0.00247654
+  10  NoOfPopup                            0.00216753
+
+SHAP vs XGBOOST AGREEMENT
+----------------------------------------------------------------------
+Correlation:                0.7500
+Top 5 overlap:              5 features
+Agreement level:            Moderate
+
+VISUALIZATIONS CREATED
+----------------------------------------------------------------------
+✅ Summary plots (beeswarm & bar)
+✅ Dependence plots (top 6 features)
+✅ Interaction matrix
+✅ SHAP vs XGBoost comparison
+✅ Force plots
+✅ Waterfall plots (Week 4)
+
+EXPLAINABILITY COVERAGE
+----------------------------------------------------------------------
+Local explanations:         ✅ Complete (Week 4)
+Global explanations:        ✅ Complete (Week 5)
+Feature interactions:       ✅ Analyzed
+Comparison analysis:        ✅ Complete
+
+Generated: 2025-12-23 13:52:51
+======================================================================

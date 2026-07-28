@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SentinelX - Model Explainability Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .metric {
+            display: inline-block;
+            margin: 10px 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        .metric-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #95a5a6;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ SentinelX - Model Explainability Report</h1>
+        <p><strong>Generated:</strong> 2025-12-23 13:30:36</p>
+
+        <h2>📊 Model Performance</h2>
+        <div>
+            <div class="metric">
+                <div class="metric-label">Accuracy</div>
+                <div class="metric-value">100.00%</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Test Samples</div>
+                <div class="metric-value">500</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Features</div>
+                <div class="metric-value">50</div>
+            </div>
+        </div>
+
+        <h2>🔝 Top 5 Features (SHAP)</h2>
+        <table>
+            <tr>
+                <th>Rank</th>
+                <th>Feature</th>
+                <th>Mean |SHAP Value|</th>
+            </tr>
+
+            <tr>
+                <td>1</td>
+                <td>URLSimilarityIndex</td>
+                <td>0.296176</td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td>LineOfCode</td>
+                <td>0.069111</td>
+            </tr>
+
+            <tr>
+                <td>3</td>
+                <td>IsHTTPS</td>
+                <td>0.053599</td>
+            </tr>
+
+            <tr>
+                <td>4</td>
+                <td>NoOfImage</td>
+                <td>0.007069</td>
+            </tr>
+
+            <tr>
+                <td>5</td>
+                <td>LargestLineLength</td>
+                <td>0.004472</td>
+            </tr>
+
+        </table>
+
+        <h2>⚙️ Top 5 Features (XGBoost)</h2>
+        <table>
+            <tr>
+                <th>Rank</th>
+                <th>Feature</th>
+                <th>Importance</th>
+            </tr>
+
+            <tr>
+                <td>1</td>
+                <td>URLSimilarityIndex</td>
+                <td>0.637948</td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td>NoOfExternalRef</td>
+                <td>0.280927</td>
+            </tr>
+
+            <tr>
+                <td>3</td>
+                <td>NoOfDegitsInURL</td>
+                <td>0.014883</td>
+            </tr>
+
+            <tr>
+                <td>4</td>
+                <td>LineOfCode</td>
+                <td>0.012456</td>
+            </tr>
+
+            <tr>
+                <td>5</td>
+                <td>NoOfSelfRef</td>
+                <td>0.009277</td>
+            </tr>
+
+        </table>
+
+        <h2>📈 Explainability Methods Used</h2>
+        <ul>
+            <li><strong>SHAP (SHapley Additive exPlanations):</strong> Game theory-based approach for explaining individual predictions</li>
+            <li><strong>Local Explanations:</strong> Waterfall and force plots for each URL</li>
+            <li><strong>Global Explanations:</strong> Summary plots showing overall feature importance</li>
+            <li><strong>Dependence Plots:</strong> Showing how features interact</li>
+        </ul>
+
+        <h2>💡 Key Insights</h2>
+        <ul>
+            <li>Model explains 500 predictions with SHAP values</li>
+            <li>Top feature (URLSimilarityIndex) has highest impact on predictions</li>
+            <li>All predictions can be broken down into feature contributions</li>
+            <li>Model decisions are transparent and interpretable</li>
+        </ul>
+
+        <div class="footer">
+            <p>SentinelX - AI-Powered Phishing Detection with Explainable Analysis</p>
+            <p>Generated by Claude | Week 5: Global Explanations</p>
+        </div>
+    </div>
+</body>
+</html>

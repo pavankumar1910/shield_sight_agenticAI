@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+
+    <!-- Main shield gradient: bright sky top → deep navy bottom -->
+    <linearGradient id="ss-grad" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%"   stop-color="#7DD3FC"/>
+      <stop offset="30%"  stop-color="#2196F3"/>
+      <stop offset="100%" stop-color="#0D1B5E"/>
+    </linearGradient>
+
+    <!-- Inner panel gradient: slightly different for depth -->
+    <linearGradient id="ss-inner" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%"   stop-color="#1565C0"/>
+      <stop offset="100%" stop-color="#0A1540"/>
+    </linearGradient>
+
+    <!-- Dot glow radial -->
+    <radialGradient id="ss-dot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="55%"  stop-color="#BAE6FD" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#38BDF8"  stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Top glass sheen -->
+    <linearGradient id="ss-sheen" x1="0" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Border glow gradient -->
+    <linearGradient id="ss-border" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#93C5FD" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.3"/>
+    </linearGradient>
+
+    <!-- Drop shadow filter -->
+    <filter id="ss-shadow" x="-8%" y="-4%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.8" flood-color="#0D1B5E" flood-opacity="0.45"/>
+    </filter>
+
+    <!-- Frame corner glow -->
+    <filter id="ss-frameglow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+  </defs>
+
+  <!-- ── SHIELD BODY ── -->
+  <path d="M32 5 L55 13.5 V30
+           C55 44.5 44.5 56.5 32 59
+           C19.5 56.5 9 44.5 9 30
+           V13.5 Z"
+        fill="url(#ss-grad)"
+        filter="url(#ss-shadow)"/>
+
+  <!-- ── INNER PANEL (depth bevel) ── -->
+  <path d="M32 9.5 L51.5 17 V30
+           C51.5 42.5 42.5 53 32 55.5
+           C21.5 53 12.5 42.5 12.5 30
+           V17 Z"
+        fill="url(#ss-inner)"
+        opacity="0.82"/>
+
+  <!-- ── TOP GLASS SHEEN ── -->
+  <path d="M32 5.5 L54 13.5 V22
+           C46 16 38 12.5 32 12
+           C26 12.5 18 16 10 22
+           V13.5 Z"
+        fill="url(#ss-sheen)"/>
+
+  <!-- ── OUTER BORDER ── -->
+  <path d="M32 5 L55 13.5 V30
+           C55 44.5 44.5 56.5 32 59
+           C19.5 56.5 9 44.5 9 30
+           V13.5 Z"
+        fill="none"
+        stroke="url(#ss-border)"
+        stroke-width="0.9"
+        opacity="0.8"/>
+
+  <!-- ── INNER BORDER (thin highlight) ── -->
+  <path d="M32 9.5 L51.5 17 V30
+           C51.5 42.5 42.5 53 32 55.5
+           C21.5 53 12.5 42.5 12.5 30
+           V17 Z"
+        fill="none"
+        stroke="rgba(255,255,255,0.12)"
+        stroke-width="0.5"/>
+
+  <!-- ── DETECTION FRAME CORNERS ──
+       Exact coords from original SVG, slightly refined arm length -->
+  <g filter="url(#ss-frameglow)">
+    <!-- Top-left corner -->
+    <path d="M21 25.5 H27.5 M21 25.5 V32"
+          stroke="white" stroke-width="2.2" stroke-linecap="round"
+          opacity="0.95"/>
+    <!-- Top-right corner -->
+    <path d="M43 25.5 H36.5 M43 25.5 V32"
+          stroke="white" stroke-width="2.2" stroke-linecap="round"
+          opacity="0.95"/>
+    <!-- Bottom-left corner -->
+    <path d="M21 38.5 H27.5 M21 38.5 V32"
+          stroke="white" stroke-width="2.2" stroke-linecap="round"
+          opacity="0.95"/>
+    <!-- Bottom-right corner -->
+    <path d="M43 38.5 H36.5 M43 38.5 V32"
+          stroke="white" stroke-width="2.2" stroke-linecap="round"
+          opacity="0.95"/>
+  </g>
+
+  <!-- ── CENTER DOT GLOW (subtle halo) ── -->
+  <circle cx="32" cy="32" r="5.5" fill="url(#ss-dot)"/>
+
+  <!-- ── CENTER DOT (AI core) — crisp white ── -->
+  <circle cx="32" cy="32" r="2.8" fill="white"/>
+  <!-- Tiny inner bright core -->
+  <circle cx="32" cy="32" r="1.4" fill="white" opacity="1"/>
+
+  <!-- ── SPECULAR GLINT (top-left of shield) ── -->
+  <circle cx="21.5" cy="11" r="1.4" fill="white" opacity="0.55"/>
+  <circle cx="20.2" cy="9.8" r="0.7" fill="white" opacity="0.35"/>
+
+</svg>

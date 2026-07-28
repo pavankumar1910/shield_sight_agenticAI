@@ -1,0 +1,31 @@
+{
+  "model_name": "production_xgboost_enhanced",
+  "accuracy": 0.9998517420311341,
+  "auc_score": 0.9999998818989551,
+  "features_used": 46,
+  "training_samples": 161880,
+  "test_samples": 40470,
+  "dataset_info": {
+    "total_samples": 202350,
+    "phishing_samples": 134850,
+    "legitimate_samples": 67500,
+    "phishing_ratio": 0.6664195700518903,
+    "alexa_samples_used": 17500
+  },
+  "performance_metrics": {
+    "true_positives": 26970,
+    "true_negatives": 13494,
+    "false_positives": 6,
+    "false_negatives": 0,
+    "true_positive_rate": 1.0,
+    "false_positive_rate": 0.00044444444444444447,
+    "false_negative_rate": 0.0
+  },
+  "features_removed": [
+    "URLSimilarityIndex",
+    "TLDLegitimateProb",
+    "URLCharProb",
+    "CharContinuationRate"
+  ],
+  "training_date": "2026-01-01T00:12:50.203669"
+}

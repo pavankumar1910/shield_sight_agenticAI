@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: shieldsight-api
+    runtime: python
+    rootDirectory: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app.main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --log-level debug"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.7"
+      - key: LOG_LEVEL
+        value: "DEBUG"
+      - key: HF_REPO_ID
+        value: "aashif-dev/shieldsight-models"
+    healthCheckPath: /health
+    plan: free
