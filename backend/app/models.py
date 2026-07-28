@@ -192,3 +192,25 @@ class BatchPredictionResponse(BaseModel):
     results: List[PredictionResponse]
     errors: List[Dict[str, str]]
     timestamp: str
+
+
+# ----------------------------
+# RAG AI COPILOT MODELS
+# ----------------------------
+
+class CopilotRequest(BaseModel):
+    """RAG Copilot query request"""
+    api_key: str = Field(..., description="User's OpenAI API Key")
+    url: str = Field(..., description="Analyzed URL")
+    question: str = Field(..., description="User's question about the URL scan report")
+    prediction: Optional[Dict[str, Any]] = None
+    explanation: Optional[Dict[str, Any]] = None
+    validation_issues: Optional[List[Dict[str, Any]]] = None
+
+
+class CopilotResponse(BaseModel):
+    """RAG Copilot query response"""
+    answer: str
+    grounded: bool = True
+    url: str
+    timestamp: str

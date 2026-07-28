@@ -250,3 +250,31 @@ export const healthCheck = async () => {
   const response = await api.get('/health');
   return response.data;
 };
+
+/* =========================
+   RAG AI COPILOT TYPES & API
+ ========================= */
+
+export interface CopilotRequestPayload {
+  api_key: string;
+  url: string;
+  question: string;
+  prediction?: any;
+  explanation?: any;
+  validation_issues?: any[];
+}
+
+export interface CopilotResponseData {
+  answer: string;
+  grounded: boolean;
+  url: string;
+  timestamp: string;
+}
+
+/**
+ * Ask RAG AI Copilot a question grounded in the analyzed URL report
+ */
+export const askCopilot = async (payload: CopilotRequestPayload): Promise<CopilotResponseData> => {
+  const response = await api.post('/predict/copilot', payload);
+  return response.data;
+};

@@ -17,11 +17,13 @@ import re
 import time
 import requests
 import hashlib
+import httpx
 
 # Import all required modules
 from app.models import (
     URLInput, URLBatchInput,
-    PredictionResponse, ExplanationResponse, FeatureContribution
+    PredictionResponse, ExplanationResponse, FeatureContribution,
+    CopilotRequest, CopilotResponse
 )
 from app.ml_model import ml_model
 from app.utils.feature_extraction import feature_extractor
@@ -1275,3 +1277,143 @@ async def explain_prediction(url_input: URLInput):
     except Exception as e:
         logger.error(f"Explanation failed: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Explanation error")
+
+
+# ═══════════════════════════════════════════════════════════
+# 🤖 RAG AI COPILOT ROUTE
+# ═══════════════════════════════════════════════════════════
+
+@router.post("/copilot", response_model=CopilotResponse)
+async def ask_rag_copilot(req: CopilotRequest):
+    """
+    RAG AI Copilot endpoint grounded strictly in the analyzed URL scan report.
+    Requires user-provided OpenAI API key.
+    Refuses to answer queries unrelated to the analyzed URL.
+    """
+    if not req.api_key or not req.api_key.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="OpenAI API key is required to use the RAG Copilot. Please provide a valid key."
+        )
+
+    if not req.question or not req.question.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Question cannot be empty."
+        )
+
+    clean_key = req.api_key.strip()
+    url = req.url
+
+    # Format Prediction Context
+    pred = req.prediction or {}
+    prediction_label = pred.get("prediction", "Unknown")
+    confidence = pred.get("confidence", 0.0)
+    risk_level = pred.get("risk_level", "Unknown")
+    threat_index = pred.get("threat_index", "N/A")
+    summary = pred.get("summary", "")
+    availability = pred.get("availability", {})
+
+    # Format Explanation / SHAP Context
+    exp = req.explanation or {}
+    top_features = exp.get("top_features", [])
+    feature_text = "\n".join([
+        f"- {f.get('feature', '')}: value={f.get('value', '')}, contribution={f.get('contribution', '')}, impact={f.get('impact', '')}"
+        for f in top_features[:10]
+    ]) if top_features else "No detailed feature breakdown available."
+
+    # Format Validation Issues
+    val_issues = req.validation_issues or []
+    validation_text = "\n".join([
+        f"- [{i.get('severity', 'warning').upper()}] {i.get('title', '')}: {i.get('description', '')}"
+        for i in val_issues
+    ]) if val_issues else "No pre-validation warnings recorded."
+
+    # RAG System Prompt with Rigid Grounding Constraints
+    system_prompt = f"""You are the ShieldSight RAG AI Security Copilot, an expert cybersecurity assistant.
+Your task is to answer user questions STRICTLY and EXCLUSIVELY based on the security scan report for the URL below.
+
+=== ANALYZED URL REPORT CONTEXT ===
+URL Analyzed: {url}
+Prediction Status: {prediction_label.upper()}
+Confidence Score: {float(confidence) * 100:.1f}%
+Risk Level: {str(risk_level).upper()}
+Threat Index: {threat_index}
+
+Website Infrastructure & Status:
+- Accessible: {availability.get('is_accessible', 'N/A')}
+- HTTP Status Code: {availability.get('status_code', 'N/A')}
+- SSL/TLS Certificate Valid: {availability.get('ssl_valid', 'N/A')}
+
+Pre-Validation Checks & Security Warnings:
+{validation_text}
+
+Key Risk Factors & Feature Contributions (SHAP Analysis):
+{feature_text}
+
+Analysis Summary:
+{summary if summary else 'Standard ML classification executed successfully.'}
+===================================
+
+CRITICAL RULES & GROUNDING BOUNDARIES:
+1. You MUST ONLY answer questions directly related to this analyzed URL ({url}), its security metrics, threat factors, SHAP contributions, SSL status, or safety recommendations regarding this specific URL.
+2. IF THE USER ASKS A QUESTION UNRELATED TO THIS ANALYZED URL OR ITS SECURITY FINDINGS (e.g. general trivia, coding help, sports, history, weather, or unrelated sites), YOU MUST STRICTLY REFUSE TO ANSWER.
+3. If refusing, state: "I am trained exclusively to answer questions regarding the analyzed URL ({url}) and its security report. Please ask a question related to this URL's safety, risk factors, or technical scan results."
+4. Do NOT make up information not supported by the scan context. Be concise, precise, professional, and clear.
+"""
+
+    try:
+        async with httpx.AsyncClient(timeout=25.0) as client:
+            response = await client.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {clean_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-4o-mini",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": req.question.strip()}
+                    ],
+                    "temperature": 0.2,
+                    "max_tokens": 600
+                }
+            )
+
+            if response.status_code in (401, 403):
+                raise HTTPException(
+                    status_code=401,
+                    detail="Invalid or unauthorized OpenAI API Key. Please verify your API key."
+                )
+            elif response.status_code == 429:
+                raise HTTPException(
+                    status_code=429,
+                    detail="OpenAI API rate limit or quota exceeded. Please check your plan & billing."
+                )
+            elif response.status_code != 200:
+                error_body = response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text
+                logger.error(f"OpenAI API Error ({response.status_code}): {error_body}")
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"OpenAI API error ({response.status_code}). Please verify your key and retry."
+                )
+
+            res_json = response.json()
+            answer_content = res_json["choices"][0]["message"]["content"].strip()
+
+            return CopilotResponse(
+                answer=answer_content,
+                grounded=True,
+                url=url,
+                timestamp=datetime.utcnow().isoformat()
+            )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"RAG Copilot execution failed: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to query RAG Copilot: {str(e)}"
+        )

@@ -20,6 +20,7 @@ import {
 import { URLInput } from '../components/prediction/URLInput';
 import { RiskIndicator } from '../components/prediction/RiskIndicator';
 import { ShapChart } from '../components/prediction/ShapChart';
+import { RAGCopilot } from '../components/prediction/RAGCopilot';
 import { Card, CardContent } from '../components/ui/Card';
 import { predictURL, explainPrediction } from '../services/api';
 import type { PredictionResponse, ExplanationResponse } from '../services/api';
@@ -1489,6 +1490,19 @@ export const Analyze = () => {
                 features={explanation.top_features}
                 explanationMethod={explanation.explanation_method}
                 baseValue={explanation.base_value}
+              />
+            </motion.div>
+
+            {/* RAG AI COPILOT */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+            >
+              <RAGCopilot
+                prediction={prediction}
+                explanation={explanation}
+                urlValidation={urlValidation}
               />
             </motion.div>
 
