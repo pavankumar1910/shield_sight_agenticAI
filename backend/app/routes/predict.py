@@ -19,6 +19,15 @@ import requests
 import hashlib
 import httpx
 
+# Optional LangSmith Tracing
+try:
+    from langsmith import traceable
+except ImportError:
+    def traceable(name: str = "", run_type: str = "chain"):
+        def decorator(func):
+            return func
+        return decorator
+
 # Import all required modules
 from app.models import (
     URLInput, URLBatchInput,
@@ -1283,12 +1292,62 @@ async def explain_prediction(url_input: URLInput):
 # 🤖 RAG AI COPILOT ROUTE
 # ═══════════════════════════════════════════════════════════
 
+@traceable(name="ShieldSight_RAG_Copilot_Invocation", run_type="chain")
+async def _execute_traced_copilot_call(clean_key: str, system_prompt: str, user_question: str, url: str):
+    async with httpx.AsyncClient(timeout=25.0) as client:
+        response = await client.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {clean_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_question.strip()}
+                ],
+                "temperature": 0.2,
+                "max_tokens": 600
+            }
+        )
+
+        if response.status_code in (401, 403):
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or unauthorized OpenAI API Key. Please verify your API key."
+            )
+        elif response.status_code == 429:
+            raise HTTPException(
+                status_code=429,
+                detail="OpenAI API rate limit or quota exceeded. Please check your plan & billing."
+            )
+        elif response.status_code != 200:
+            error_body = response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text
+            logger.error(f"OpenAI API Error ({response.status_code}): {error_body}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"OpenAI API error ({response.status_code}). Please verify your key and retry."
+            )
+
+        res_json = response.json()
+        answer_content = res_json["choices"][0]["message"]["content"].strip()
+
+        return CopilotResponse(
+            answer=answer_content,
+            grounded=True,
+            url=url,
+            timestamp=datetime.utcnow().isoformat()
+        )
+
+
 @router.post("/copilot", response_model=CopilotResponse)
 async def ask_rag_copilot(req: CopilotRequest):
     """
     RAG AI Copilot endpoint grounded strictly in the analyzed URL scan report.
     Requires user-provided OpenAI API key.
     Refuses to answer queries unrelated to the analyzed URL.
+    Traced via LangSmith if LANGCHAIN_API_KEY is set.
     """
     if not req.api_key or not req.api_key.strip():
         raise HTTPException(
@@ -1363,51 +1422,7 @@ CRITICAL RULES & GROUNDING BOUNDARIES:
 """
 
     try:
-        async with httpx.AsyncClient(timeout=25.0) as client:
-            response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {clean_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": "gpt-4o-mini",
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": req.question.strip()}
-                    ],
-                    "temperature": 0.2,
-                    "max_tokens": 600
-                }
-            )
-
-            if response.status_code in (401, 403):
-                raise HTTPException(
-                    status_code=401,
-                    detail="Invalid or unauthorized OpenAI API Key. Please verify your API key."
-                )
-            elif response.status_code == 429:
-                raise HTTPException(
-                    status_code=429,
-                    detail="OpenAI API rate limit or quota exceeded. Please check your plan & billing."
-                )
-            elif response.status_code != 200:
-                error_body = response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text
-                logger.error(f"OpenAI API Error ({response.status_code}): {error_body}")
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"OpenAI API error ({response.status_code}). Please verify your key and retry."
-                )
-
-            res_json = response.json()
-            answer_content = res_json["choices"][0]["message"]["content"].strip()
-
-            return CopilotResponse(
-                answer=answer_content,
-                grounded=True,
-                url=url,
-                timestamp=datetime.utcnow().isoformat()
-            )
+        return await _execute_traced_copilot_call(clean_key, system_prompt, req.question, url)
 
     except HTTPException:
         raise
