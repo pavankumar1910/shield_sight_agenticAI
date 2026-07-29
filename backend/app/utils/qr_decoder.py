@@ -119,8 +119,16 @@ class QRDecoder:
             detector = cv2.QRCodeDetector()
             success, decoded_info, points, _ = detector.detectAndDecodeMulti(img_bgr)
             
+            # Single QR fallback if multi-detect returns empty
+            if not success or not decoded_info or not any(decoded_info):
+                data_single, bbox_single, _ = detector.detectAndDecode(img_bgr)
+                if data_single:
+                    decoded_info = [data_single]
+                    points = [bbox_single] if bbox_single is not None else []
+                    success = True
+
             results = []
-            if success:
+            if success and decoded_info:
                 for data, bbox in zip(decoded_info, points):
                     if not data:
                         continue
@@ -128,15 +136,20 @@ class QRDecoder:
                     # Clean/Format data
                     data = data.strip()
                     if not data.startswith(('http://', 'https://', 'www.')):
-                        # Only take URLs
-                        continue
+                        if '://' not in data and '.' in data:
+                            data = 'http://' + data
+                        else:
+                            continue
                     
                     # Calculate bounding rect
-                    x_min = int(np.min(bbox[:, 0]))
-                    y_min = int(np.min(bbox[:, 1]))
-                    width = int(np.max(bbox[:, 0]) - x_min)
-                    height = int(np.max(bbox[:, 1]) - y_min)
-                    
+                    if bbox is not None and len(bbox) > 0:
+                        x_min = int(np.min(bbox[:, 0]))
+                        y_min = int(np.min(bbox[:, 1]))
+                        width = int(np.max(bbox[:, 0]) - x_min)
+                        height = int(np.max(bbox[:, 1]) - y_min)
+                    else:
+                        x_min, y_min, width, height = 0, 0, 100, 100
+
                     results.append({
                         'data': data,
                         'type': 'QRCODE',
