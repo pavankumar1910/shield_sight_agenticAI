@@ -32,7 +32,8 @@ except ImportError:
 from app.models import (
     URLInput, URLBatchInput,
     PredictionResponse, ExplanationResponse, FeatureContribution,
-    CopilotRequest, CopilotResponse
+    CopilotRequest, CopilotResponse,
+    EmailCopilotRequest, EmailCopilotResponse
 )
 from app.ml_model import ml_model
 from app.utils.feature_extraction import feature_extractor
@@ -1431,4 +1432,138 @@ CRITICAL RULES & GROUNDING BOUNDARIES:
         raise HTTPException(
             status_code=500,
             detail=f"Failed to query RAG Copilot: {str(e)}"
+        )
+
+
+# ═══════════════════════════════════════════════════════════
+# 📧 EMAIL RAG AI COPILOT ROUTE
+# ═══════════════════════════════════════════════════════════
+
+@traceable(name="ShieldSight_Email_RAG_Copilot_Invocation", run_type="chain")
+async def _execute_traced_email_copilot_call(clean_key: str, system_prompt: str, user_question: str, phishing_links_count: int):
+    async with httpx.AsyncClient(timeout=25.0) as client:
+        response = await client.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {clean_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_question.strip()}
+                ],
+                "temperature": 0.2,
+                "max_tokens": 700
+            }
+        )
+
+        if response.status_code in (401, 403):
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid or unauthorized OpenAI API Key. Please verify your API key."
+            )
+        elif response.status_code == 429:
+            raise HTTPException(
+                status_code=429,
+                detail="OpenAI API rate limit or quota exceeded. Please check your plan & billing."
+            )
+        elif response.status_code != 200:
+            error_body = response.json() if response.headers.get("content-type", "").startswith("application/json") else response.text
+            logger.error(f"OpenAI API Error ({response.status_code}): {error_body}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"OpenAI API error ({response.status_code}). Please verify your key and retry."
+            )
+
+        res_json = response.json()
+        answer_content = res_json["choices"][0]["message"]["content"].strip()
+
+        return EmailCopilotResponse(
+            answer=answer_content,
+            grounded=True,
+            phishing_links_count=phishing_links_count,
+            timestamp=datetime.utcnow().isoformat()
+        )
+
+
+@router.post("/email-copilot", response_model=EmailCopilotResponse)
+async def ask_email_rag_copilot(req: EmailCopilotRequest):
+    """
+    RAG AI Copilot endpoint grounded strictly in the scanned email text and URL scan report.
+    Requires user-provided OpenAI API key.
+    Refuses to answer queries unrelated to the scanned email.
+    Traced via LangSmith if LANGCHAIN_API_KEY is set.
+    """
+    if not req.api_key or not req.api_key.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="OpenAI API key is required to use the Email RAG Copilot. Please provide a valid key."
+        )
+
+    if not req.question or not req.question.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Question cannot be empty."
+        )
+
+    clean_key = req.api_key.strip()
+    email_text = req.email_content.strip()
+
+    # Format URL Scan Results Context
+    scan_results = req.scan_results or []
+    phishing_count = sum(1 for r in scan_results if r.get("prediction") == "phishing")
+    legitimate_count = sum(1 for r in scan_results if r.get("prediction") == "legitimate")
+
+    url_summary_lines = []
+    for r in scan_results:
+        u = r.get("url", "")
+        pred = r.get("prediction", "unknown").upper()
+        conf = float(r.get("confidence", 0.0)) * 100
+        risk = r.get("risk_level", "unknown").upper()
+        url_summary_lines.append(f"- URL: {u} | Status: {pred} | Confidence: {conf:.1f}% | Risk Level: {risk}")
+
+    url_context_text = "\n".join(url_summary_lines) if url_summary_lines else "No URLs were found in this email."
+
+    # Email RAG System Prompt
+    system_prompt = f"""You are the ShieldSight Email RAG AI Security Analyst, an expert cybersecurity assistant specializing in phishing email detection, social engineering analysis, and digital forensics.
+
+Your task is to analyze user questions STRICTLY and EXCLUSIVELY based on the scanned email content and URL scan report below.
+
+=== SCANNED EMAIL CONTENT ===
+{email_text}
+=============================
+
+=== EXTRACTED URL SECURITY SCAN REPORT ===
+Total Extracted URLs: {len(scan_results)}
+Phishing URLs Detected: {phishing_count}
+Legitimate URLs Detected: {legitimate_count}
+
+Detailed URL Breakdown:
+{url_context_text}
+==========================================
+
+INSTRUCTIONS & ANALYSIS GUIDELINES:
+1. When asked about email authenticity or phishing risk, evaluate:
+   - Suspicious sender/domain mismatches or fake brand claims.
+   - Social engineering tactics: artificial urgency, fear tactics, account closure threats, or reward lures.
+   - Credential harvesting attempts & dangerous links.
+   - Actionable advice (e.g. Do NOT click, Do NOT reply, report to IT/abuse team).
+2. You MUST ONLY answer questions directly related to this scanned email content, its extracted links, or its security findings.
+3. IF THE USER ASKS A QUESTION UNRELATED TO THIS SCANNED EMAIL (e.g. general trivia, coding, history, weather, or unrelated topics), YOU MUST STRICTLY REFUSE TO ANSWER.
+4. If refusing, state: "I am trained exclusively to answer questions regarding the scanned email and its security findings. Please ask a question related to this email's authenticity, social engineering tactics, or link analysis."
+5. Do NOT hallucinate facts outside the email content and scan report. Keep answers clear, professional, structured, and easy to read.
+"""
+
+    try:
+        return await _execute_traced_email_copilot_call(clean_key, system_prompt, req.question, phishing_count)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Email RAG Copilot execution failed: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to query Email RAG Copilot: {str(e)}"
         )

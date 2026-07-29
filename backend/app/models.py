@@ -214,3 +214,19 @@ class CopilotResponse(BaseModel):
     grounded: bool = True
     url: str
     timestamp: str
+
+
+class EmailCopilotRequest(BaseModel):
+    """RAG Copilot query request for Email Scanner"""
+    api_key: str = Field(..., description="User's OpenAI API Key")
+    email_content: str = Field(..., description="Full text/body of the scanned email")
+    question: str = Field(..., description="User's question about the scanned email")
+    scan_results: Optional[List[Dict[str, Any]]] = None
+
+
+class EmailCopilotResponse(BaseModel):
+    """RAG Copilot query response for Email Scanner"""
+    answer: str
+    grounded: bool = True
+    phishing_links_count: int = 0
+    timestamp: str

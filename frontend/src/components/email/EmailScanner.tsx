@@ -7,6 +7,7 @@ import { showToast } from '../ui/Toast';
 import { batchPredict } from '../../services/api';
 import { useNotificationStore } from '../../stores/notificationStore';
 import { useHistoryStore } from '../../stores/historyStore';
+import { EmailRAGCopilot } from './EmailRAGCopilot';
 
 interface ScanResult {
   url: string;
@@ -553,6 +554,18 @@ Tip: Include the entire email with subject, body, and all links."
               </Card>
             </motion.div>
           )}
+
+          {/* EMAIL RAG AI SECURITY ANALYST */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <EmailRAGCopilot
+              emailContent={emailContent}
+              scanResults={results}
+            />
+          </motion.div>
         </motion.div>
       )}
     </div>

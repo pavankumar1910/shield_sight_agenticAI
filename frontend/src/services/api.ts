@@ -278,3 +278,29 @@ export const askCopilot = async (payload: CopilotRequestPayload): Promise<Copilo
   const response = await api.post('/predict/copilot', payload);
   return response.data;
 };
+
+/* =========================
+   EMAIL RAG AI COPILOT TYPES & API
+ ========================= */
+
+export interface EmailCopilotRequestPayload {
+  api_key: string;
+  email_content: string;
+  question: string;
+  scan_results?: any[];
+}
+
+export interface EmailCopilotResponseData {
+  answer: string;
+  grounded: boolean;
+  phishing_links_count: number;
+  timestamp: string;
+}
+
+/**
+ * Ask Email RAG AI Copilot a question grounded in the scanned email report
+ */
+export const askEmailCopilot = async (payload: EmailCopilotRequestPayload): Promise<EmailCopilotResponseData> => {
+  const response = await api.post('/predict/email-copilot', payload);
+  return response.data;
+};
